@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './src/store/authStore';
 import Navbar from './src/components/layout/Navbar';
+import Home from './src/pages/Home';
 import Login from './src/pages/auth/Login';
 import Register from './src/pages/auth/Register';
 import BrandDashboard from './src/pages/brand/BrandDashboard';
@@ -24,22 +25,6 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
   return children;
 };
 
-// Public Route Component (redirect if authenticated)
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  
-  if (isAuthenticated) {
-    // Redirect based on user role
-    if (user?.role === 'brand') {
-      return <Navigate to="/brand/dashboard" replace />;
-    } else {
-      return <Navigate to="/influencer/profile" replace />;
-    }
-  }
-  
-  return children;
-};
-
 function App() {
   const { initializeAuth, isAuthenticated, user } = useAuthStore();
 
@@ -53,22 +38,9 @@ function App() {
         <Navbar />
         <Routes>
           {/* Public Routes */}
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/register" 
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } 
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           
           {/* Protected Brand Routes */}
           <Route 
@@ -95,22 +67,6 @@ function App() {
               <ProtectedRoute requiredRole="influencer">
                 <InfluencerProfileWizard />
               </ProtectedRoute>
-            } 
-          />
-          
-          {/* Default Routes */}
-          <Route 
-            path="/" 
-            element={
-              isAuthenticated ? (
-                user?.role === 'brand' ? (
-                  <Navigate to="/brand/dashboard" replace />
-                ) : (
-                  <Navigate to="/influencer/profile" replace />
-                )
-              ) : (
-                <Navigate to="/login" replace />
-              )
             } 
           />
           
